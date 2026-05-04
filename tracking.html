@@ -8,12 +8,29 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="index.html">Home</a>
-        <a href="cart.html">Cart</a>
+        <a href="index.html" class="nav-brand">
+            <span class="brand-mark">
+                <img src="images.png" alt="Delivery Logo" class="brand-logo">
+            </span>
+            <span class="brand-copy">
+                <strong>QuickEats</strong>
+                <small>Fast Delivery</small>
+            </span>
+        </a>
+
+        <div class="nav-links">
+            <a href="about.html">About</a>
+            <a href="cart.html">Cart</a>
+            <a href="tracking.html" class="nav-link-strong">Tracking</a>
+        </div>
     </div>
 
     <div class="page-wrap">
-        <h2>Track Your Delivery</h2>
+        <div class="page-header">
+            <p class="section-kicker">Live Updates</p>
+            <h2>Track Your Delivery</h2>
+            <p>Follow your order in real time and stay ready for your delivery arrival.</p>
+        </div>
         <div class="tracking-card">
             <p id="trackingStatus">Preparing your order...</p>
             <div class="tracking-bar">

@@ -12,16 +12,47 @@
 <body>
 
 <div class="navbar">
-    <div class="logo">
-    <h4>
-    <img src="images.png" alt="Delivery Logo" class="logo">QuickEats
-</h4>
+    <a href="index.html" class="nav-brand">
+        <span class="brand-mark">
+            <img src="images.png" alt="Delivery Logo" class="brand-logo">
+        </span>
+        <span class="brand-copy">
+            <strong>QuickEats</strong>
+            <small>Fast Delivery</small>
+        </span>
+    </a>
+
+    <div class="nav-search">
+        <input type="text" id="search" placeholder="Search food or restaurant">
+    </div>
+
+    <div class="nav-links">
+        <a href="about.html">About</a>
+        <a href="tracking.html">Tracking</a>
+        <a href="cart.html" class="nav-link-strong">Cart</a>
+        <a href="admin.html">Upload</a>
+    </div>
 </div>
-    
-    <input type="text" id="search" placeholder="Search food or restaurant">
-    <a href="cart.html">Cart</a>
-    <a href="admin.html">Upload</a>
-</div>
+
+<section class="hero-banner">
+    <div class="hero-copy">
+        <p class="hero-kicker">Fast Meals, Faster Delivery</p>
+        <h1>Your favorite food, delivered hot and right on time.</h1>
+        <p>
+            Discover top meals, choose your quantity, and place your order in a few quick steps with QuickEats.
+        </p>
+        <div class="hero-actions">
+            <a href="#foodList" class="hero-button hero-button-primary">Order Now</a>
+            <a href="tracking.html" class="hero-button hero-button-secondary">Track Delivery</a>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-visual-card">
+            <img src="images.png" alt="QuickEats delivery">
+            <div class="hero-badge">Fresh picks. Fast drop-off.</div>
+        </div>
+    </div>
+</section>
 
 <div class="categories">
     <button onclick="filterCategory('All')">All</button>
@@ -33,7 +64,12 @@
     <button onclick="filterCategory('Snacks')">Snacks</button>
 </div>
 
-<div id="foodList"></div>
+<section class="section-intro">
+    <p class="section-kicker">Popular Choices</p>
+    <h2>Browse meals customers love</h2>
+    <p>Pick a category, compare options, and add exactly what you want to your cart.</p>
+</section>
+
 <div id="foodList"></div>
 <div id="pagination" class="pagination"></div>
 
@@ -41,8 +77,6 @@
     <span>Item added to cart. Click to checkout.</span>
     <a href="cart.html">Checkout</a>
 </div>
-
-
 
 
 <div class="contact">
