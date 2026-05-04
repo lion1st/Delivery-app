@@ -424,6 +424,46 @@ hr {
   line-height: 1.7;
 }
 
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.team-card {
+  padding: 20px 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff8f2, #ffffff);
+  border: 1px solid #f1dfd4;
+  text-align: center;
+}
+
+.team-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.team-card p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.team-avatar {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ff6b35, #ff9f1c);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  box-shadow: 0 10px 20px rgba(255, 107, 53, 0.22);
+}
+
 @media (max-width: 600px) {
     .navbar {
         padding: 14px;
