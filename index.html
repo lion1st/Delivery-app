@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUICK EAT</title>
+<link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+<link href="https://cdn.boxicons.com/3.0.8/fonts/filled/boxicons-filled.min.css" rel="stylesheet">
+<link href="https://cdn.boxicons.com/3.0.8/fonts/brands/boxicons-brands.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">
+    <h4>
+    <img src="images.png" alt="Delivery Logo" class="logo">QuickEats
+</h4>
+</div>
+    
+    <input type="text" id="search" placeholder="Search food or restaurant">
+    <a href="cart.html">Cart</a>
+    <a href="admin.html">Upload</a>
+</div>
+
+<div class="categories">
+    <button onclick="filterCategory('All')">All</button>
+    <button onclick="filterCategory('Burgers')">Burgers</button>
+    <button onclick="filterCategory('Pizza')">Pizza</button>
+    <button onclick="filterCategory('Drinks')">Drinks</button>
+    <button onclick="filterCategory('Chicken')">Chicken</button>
+    <button onclick="filterCategory('Dessert')">Dessert</button>
+    <button onclick="filterCategory('Snacks')">Snacks</button>
+</div>
+
+<div id="foodList"></div>
+<div id="foodList"></div>
+<div id="pagination" class="pagination"></div>
+
+<div id="checkoutPrompt" class="checkout-prompt" role="status" aria-live="polite">
+    <span>Item added to cart. Click to checkout.</span>
+    <a href="cart.html">Checkout</a>
+</div>
+
+
+
+
+<div class="contact">
+    <h2>Place order</h2>
+    <input id="fullName" placeholder="Full Name">
+    <input id="phone" placeholder="Phone Number">
+    <input id="email" placeholder="Email">
+    <input id="address" placeholder="Street Address">
+    <button type="button" onclick="submitContact()">Submit</button>
+<p id="msg" class="status-message"></p>
+
+</div>
+<div class="contact">
+    <h2>Contact Us</h2>
+
+    <h3>Company Info</h3>
+    <p>QuickEats Delivery Ltd</p>
+    <p>Kigali, Rwanda - KN 12 St</p>
+    <p>Email: support@quickeats.com</p>
+    <p>Phone: +250 788 123 456</p>
+</div>
+<footer class="footer">
+  <div class="footer-content">
+    <h3>Delivery Service</h3>
+    <p>Fast and reliable delivery at your fingertips.</p>
+
+    <div class="socials">
+      <a href="#"><i class="bxl bx-facebook-circle">facebook</i></a>
+      <a href="#"><i class="bxl bx-instagram">instagram</i></a>
+      <a href="#"><i class="bxl bx-twitter-x">twitter</i></a>
+    </div>
+
+    <p class="copy">© <span id="year"></span> Delivery Service. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="autosync.js"></script>
+
+</body>
+</html>

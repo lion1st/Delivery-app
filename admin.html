@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+<link href="https://cdn.boxicons.com/3.0.8/fonts/filled/boxicons-filled.min.css" rel="stylesheet">
+<link href="https://cdn.boxicons.com/3.0.8/fonts/brands/boxicons-brands.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <h2>Admin Panel - Food Management</h2>
+
+    <div class="admin-form">
+        <input id="name" placeholder="Food Name">
+        <input id="price" placeholder="Price" type="number">
+        <input id="image" placeholder="Image URL">
+        <input id="restaurant" placeholder="Restaurant">
+        <input id="category" placeholder="Category">
+
+        <button id="addBtn" onclick="addFood()">Add Food</button>
+        <button id="updateBtn" onclick="updateFood()" style="display: none;">Update Food</button>
+    </div>
+
+    <hr>
+
+    <h3>All Foods</h3>
+    <div id="adminList"></div>
+
+    <script>
+        function logout() {
+            localStorage.removeItem("currentUser");
+            window.location.href = "admin-login.html";
+        }
+    </script>
+
+    <script src="auth.js"></script>
+    <script src="init-admin.js"></script>
+    <script src="autosync.js"></script>
+    <script src="admin.js"></script>
+<footer class="footer">
+  <div class="footer-content">
+    <h3>Delivery Service</h3>
+    <p>Fast and reliable delivery at your fingertips.</p>
+
+    <div class="socials">
+      <a href="#"><i class="bxl bx-facebook-circle">facebook</i></a>
+      <a href="#"><i class="bxl bx-instagram">instagram</i></a>
+      <a href="#"><i class="bxl bx-twitter-x">twitter</i></a>
+    </div>
+
+    <p class="copy">© <span id="year"></span> Delivery Service. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

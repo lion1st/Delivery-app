@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Signup</title>
+    <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+<link href="https://cdn.boxicons.com/3.0.8/fonts/filled/boxicons-filled.min.css" rel="stylesheet">
+<link href="https://cdn.boxicons.com/3.0.8/fonts/brands/boxicons-brands.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <p class="auth-kicker">QuickEats Admin</p>
+            <h2>Create Admin Account</h2>
+            <p class="auth-subtitle">Set up an admin profile to upload meals, edit listings, and keep the menu fresh.</p>
+
+            <form id="adminSignupForm">
+                <input id="name" type="text" placeholder="Full Name" required>
+                <input id="email" type="email" placeholder="Email" required>
+                <input id="password" type="password" placeholder="Password" required>
+                <button type="submit">Create Account</button>
+            </form>
+
+            <div class="auth-links">
+                <p>Already have an account? <a href="admin-login.html">Login</a></p>
+                <p><a href="index.html">Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+<footer class="footer">
+  <div class="footer-content">
+    <h3>Delivery Service</h3>
+    <p>Fast and reliable delivery at your fingertips.</p>
+
+    <div class="socials">
+      <a href="#"><i class="bxl bx-facebook-circle">facebook</i></a>
+      <a href="#"><i class="bxl bx-instagram">instagram</i></a>
+      <a href="#"><i class="bxl bx-twitter-x">twitter</i></a>
+    </div>
+
+    <p class="copy">© <span id="year"></span> Delivery Service. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+    <script src="auth.js"></script>
+    <script src="init-admin.js"></script>
+    <script src="admin-auth.js"></script>
+</body>
+</html>

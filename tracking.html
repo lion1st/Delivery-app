@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Tracking</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart</a>
+    </div>
+
+    <div class="page-wrap">
+        <h2>Track Your Delivery</h2>
+        <div class="tracking-card">
+            <p id="trackingStatus">Preparing your order...</p>
+            <div class="tracking-bar">
+                <div id="trackingProgress"></div>
+            </div>
+            <div id="mapBox" class="map-box">
+                <p>Driver location preview</p>
+                <div id="mapMarker" class="map-marker"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="map.js"></script>
+</body>
+</html>

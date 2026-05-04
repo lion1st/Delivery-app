@@ -1,0 +1,223 @@
+function getCart() {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+}
+
+function getSavedOrderDetails() {
+    return JSON.parse(localStorage.getItem("orderDetails")) || {};
+}
+
+function saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
+    window.dispatchEvent(new Event("cartUpdated"));
+}
+
+function displayCart() {
+    const cart = getCart();
+    const container = document.getElementById("cartList");
+    const totalEl = document.getElementById("cartTotal");
+
+    container.innerHTML = "";
+
+    if (cart.length === 0) {
+        container.innerHTML = "<p>Your cart is empty.</p>";
+        totalEl.textContent = "Total: RWF 0";
+        return;
+    }
+
+    let total = 0;
+    const savedOrderDetails = getSavedOrderDetails();
+
+    cart.forEach((item, index) => {
+        total += Number(item.price) || 0;
+        const client = item.client || savedOrderDetails;
+
+        container.innerHTML += `
+            <div class="cart-card">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="cart-card-content">
+                    <h3>${item.name}</h3>
+                    <p>${item.restaurant || ""}</p>
+                    <p>RWF ${item.price}</p>
+                    <p>Client Name: ${client.fullName || "Not provided"}</p>
+                    <p>Phone Number: ${client.phone || "Not provided"}</p>
+                    <p>Street Address: ${client.address || "Not provided"}</p>
+                    <button onclick="removeFromCart(${index})">Remove</button>
+                </div>
+            </div>
+        `;
+    });
+
+    totalEl.textContent = `Total: RWF ${total}`;
+}
+
+function removeFromCart(index) {
+    const cart = getCart();
+    cart.splice(index, 1);
+    saveCart(cart);
+    displayCart();
+}
+
+function clearCart() {
+    saveCart([]);
+    displayCart();
+}
+
+function getEmailServiceConfig() {
+    return window.EMAIL_SERVICE_CONFIG || {};
+}
+
+function isEmailServiceConfigured() {
+    const config = getEmailServiceConfig();
+
+    return Boolean(
+        window.emailjs &&
+        config.publicKey &&
+        config.serviceId &&
+        config.templateId &&
+        !config.publicKey.includes("YOUR_") &&
+        !config.serviceId.includes("YOUR_") &&
+        !config.templateId.includes("YOUR_")
+    );
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function buildOrderEmail(cart) {
+    const savedOrderDetails = getSavedOrderDetails();
+    const firstClient = (cart[0] && cart[0].client) || savedOrderDetails;
+    const config = getEmailServiceConfig();
+    const total = cart.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+    const itemsSummary = cart
+        .map((item, index) => `${index + 1}. ${item.name} - RWF ${item.price}`)
+        .join("\n");
+
+    const subject = "New QuickEats Order";
+    const body = [
+        "A client has placed an order.",
+        "",
+        `Client Name: ${firstClient.fullName || "Not provided"}`,
+        `Phone Number: ${firstClient.phone || "Not provided"}`,
+        `Street Address: ${firstClient.address || "Not provided"}`,
+        "",
+        "Items:",
+        itemsSummary,
+        "",
+        `Total: RWF ${total}`
+    ].join("\n");
+
+    const itemsHtml = cart
+        .map(
+            (item, index) => `
+                <tr>
+                    <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db;">${index + 1}. ${escapeHtml(item.name || "Item")}</td>
+                    <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db; color: #7a5c4d;">${escapeHtml(item.restaurant || "QuickEats")}</td>
+                    <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db; text-align: right; font-weight: 700;">RWF ${escapeHtml(item.price || 0)}</td>
+                </tr>
+            `
+        )
+        .join("");
+
+    const html = `
+        <div style="margin: 0; padding: 24px; background: #fff7f1; font-family: Arial, sans-serif; color: #222;">
+            <div style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 18px; overflow: hidden; border: 1px solid #f3dfd3;">
+                <div style="padding: 24px 28px; background: linear-gradient(135deg, #ff6b35, #ff9f1c); color: #ffffff;">
+                    <p style="margin: 0 0 8px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;">QuickEats</p>
+                    <h2 style="margin: 0; font-size: 28px;">New Order Received</h2>
+                </div>
+                <div style="padding: 28px;">
+                    <p style="margin: 0 0 18px; font-size: 16px; line-height: 1.6;">A client has placed a new order. Here are the delivery details and ordered items.</p>
+                    <div style="padding: 18px; border-radius: 14px; background: #fff7f1; border: 1px solid #f4e0d4; margin-bottom: 22px;">
+                        <p style="margin: 0 0 10px;"><strong>Client Name:</strong> ${escapeHtml(firstClient.fullName || "Not provided")}</p>
+                        <p style="margin: 0 0 10px;"><strong>Phone Number:</strong> ${escapeHtml(firstClient.phone || "Not provided")}</p>
+                        <p style="margin: 0;"><strong>Street Address:</strong> ${escapeHtml(firstClient.address || "Not provided")}</p>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 22px;">
+                        <thead>
+                            <tr>
+                                <th style="padding-bottom: 10px; text-align: left; border-bottom: 2px solid #f0e4db;">Item</th>
+                                <th style="padding-bottom: 10px; text-align: left; border-bottom: 2px solid #f0e4db;">Restaurant</th>
+                                <th style="padding-bottom: 10px; text-align: right; border-bottom: 2px solid #f0e4db;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    <div style="display: inline-block; padding: 14px 18px; border-radius: 14px; background: #222; color: #fff; font-size: 18px; font-weight: 700;">
+                        Total: RWF ${escapeHtml(total)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return {
+        subject,
+        body,
+        html,
+        total,
+        itemsSummary,
+        firstClient,
+        recipientEmail: config.recipientEmail || "cyubahiroallain1@gmail.com"
+    };
+}
+
+function buildTemplateParams(orderEmail) {
+    return {
+        to_email: orderEmail.recipientEmail,
+        subject: orderEmail.subject,
+        client_name: orderEmail.firstClient.fullName || "Not provided",
+        client_phone: orderEmail.firstClient.phone || "Not provided",
+        client_address: orderEmail.firstClient.address || "Not provided",
+        order_items: orderEmail.itemsSummary,
+        total_amount: `RWF ${orderEmail.total}`,
+        message: orderEmail.body,
+        message_html: orderEmail.html
+    };
+}
+
+async function sendOrderNotification(cart) {
+    const config = getEmailServiceConfig();
+    const orderEmail = buildOrderEmail(cart);
+
+    if (!isEmailServiceConfigured()) {
+        throw new Error("Email service is not configured yet.");
+    }
+
+    emailjs.init({
+        publicKey: config.publicKey
+    });
+
+    return emailjs.send(
+        config.serviceId,
+        config.templateId,
+        buildTemplateParams(orderEmail)
+    );
+}
+
+async function checkout() {
+    const cart = getCart();
+
+    if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+    }
+
+    try {
+        await sendOrderNotification(cart);
+        alert("Sent");
+        clearCart();
+        window.location.href = "tracking.html";
+    } catch (error) {
+        console.error(error);
+        alert("Order was not emailed yet. Add your EmailJS keys in email-config.js and try again.");
+    }
+}
+
+window.addEventListener("cartUpdated", displayCart);
+document.addEventListener("DOMContentLoaded", displayCart);
