@@ -20,15 +20,21 @@ function displayCart() {
 
     if (cart.length === 0) {
         container.innerHTML = "<p>Your cart is empty.</p>";
-        totalEl.textContent = "Total: RWF 0";
+        totalEl.textContent = "Total Items: 0 | Total: RWF 0";
         return;
     }
 
     let total = 0;
+    let totalItems = 0;
     const savedOrderDetails = getSavedOrderDetails();
 
     cart.forEach((item, index) => {
-        total += Number(item.price) || 0;
+        const quantity = Number(item.quantity) || 1;
+        const itemPrice = Number(item.price) || 0;
+        const itemTotal = itemPrice * quantity;
+
+        total += itemTotal;
+        totalItems += quantity;
         const client = item.client || savedOrderDetails;
 
         container.innerHTML += `
@@ -37,7 +43,9 @@ function displayCart() {
                 <div class="cart-card-content">
                     <h3>${item.name}</h3>
                     <p>${item.restaurant || ""}</p>
-                    <p>RWF ${item.price}</p>
+                    <p>Price: RWF ${item.price}</p>
+                    <p>Quantity: ${quantity}</p>
+                    <p>Item Total: RWF ${itemTotal}</p>
                     <p>Client Name: ${client.fullName || "Not provided"}</p>
                     <p>Phone Number: ${client.phone || "Not provided"}</p>
                     <p>Street Address: ${client.address || "Not provided"}</p>
@@ -47,7 +55,7 @@ function displayCart() {
         `;
     });
 
-    totalEl.textContent = `Total: RWF ${total}`;
+    totalEl.textContent = `Total Items: ${totalItems} | Total: RWF ${total}`;
 }
 
 function removeFromCart(index) {
@@ -93,9 +101,18 @@ function buildOrderEmail(cart) {
     const savedOrderDetails = getSavedOrderDetails();
     const firstClient = (cart[0] && cart[0].client) || savedOrderDetails;
     const config = getEmailServiceConfig();
-    const total = cart.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+    const totalItems = cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+    const total = cart.reduce(
+        (sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 1)),
+        0
+    );
     const itemsSummary = cart
-        .map((item, index) => `${index + 1}. ${item.name} - RWF ${item.price}`)
+        .map((item, index) => {
+            const quantity = Number(item.quantity) || 1;
+            const itemTotal = (Number(item.price) || 0) * quantity;
+
+            return `${index + 1}. ${item.name} x${quantity} - RWF ${itemTotal}`;
+        })
         .join("\n");
 
     const subject = "New QuickEats Order";
@@ -109,18 +126,26 @@ function buildOrderEmail(cart) {
         "Items:",
         itemsSummary,
         "",
+        `Total Items: ${totalItems}`,
+        "",
         `Total: RWF ${total}`
     ].join("\n");
 
     const itemsHtml = cart
         .map(
-            (item, index) => `
+            (item, index) => {
+                const quantity = Number(item.quantity) || 1;
+                const itemTotal = (Number(item.price) || 0) * quantity;
+
+                return `
                 <tr>
                     <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db;">${index + 1}. ${escapeHtml(item.name || "Item")}</td>
                     <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db; color: #7a5c4d;">${escapeHtml(item.restaurant || "QuickEats")}</td>
-                    <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db; text-align: right; font-weight: 700;">RWF ${escapeHtml(item.price || 0)}</td>
+                    <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db; text-align: center;">${escapeHtml(quantity)}</td>
+                    <td style="padding: 12px 0; border-bottom: 1px solid #f0e4db; text-align: right; font-weight: 700;">RWF ${escapeHtml(itemTotal)}</td>
                 </tr>
-            `
+            `;
+            }
         )
         .join("");
 
@@ -143,11 +168,13 @@ function buildOrderEmail(cart) {
                             <tr>
                                 <th style="padding-bottom: 10px; text-align: left; border-bottom: 2px solid #f0e4db;">Item</th>
                                 <th style="padding-bottom: 10px; text-align: left; border-bottom: 2px solid #f0e4db;">Restaurant</th>
+                                <th style="padding-bottom: 10px; text-align: center; border-bottom: 2px solid #f0e4db;">Qty</th>
                                 <th style="padding-bottom: 10px; text-align: right; border-bottom: 2px solid #f0e4db;">Price</th>
                             </tr>
                         </thead>
                         <tbody>${itemsHtml}</tbody>
                     </table>
+                    <p style="margin: 0 0 14px; color: #5f5f5f; font-weight: 700;">Total Items: ${escapeHtml(totalItems)}</p>
                     <div style="display: inline-block; padding: 14px 18px; border-radius: 14px; background: #222; color: #fff; font-size: 18px; font-weight: 700;">
                         Total: RWF ${escapeHtml(total)}
                     </div>
@@ -161,6 +188,7 @@ function buildOrderEmail(cart) {
         body,
         html,
         total,
+        totalItems,
         itemsSummary,
         firstClient,
         recipientEmail: config.recipientEmail || "cyubahiroallain1@gmail.com"
@@ -175,6 +203,7 @@ function buildTemplateParams(orderEmail) {
         client_phone: orderEmail.firstClient.phone || "Not provided",
         client_address: orderEmail.firstClient.address || "Not provided",
         order_items: orderEmail.itemsSummary,
+        total_items: orderEmail.totalItems,
         total_amount: `RWF ${orderEmail.total}`,
         message: orderEmail.body,
         message_html: orderEmail.html

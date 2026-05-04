@@ -200,8 +200,22 @@ function addToCart(id) {
         return;
     }
 
+    const quantityInput = window.prompt("How many items do you need?", "1");
+
+    if (quantityInput === null) {
+        return;
+    }
+
+    const quantity = Number.parseInt(quantityInput, 10);
+
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+        alert("Please enter a valid item quantity.");
+        return;
+    }
+
     cart.push({
         ...item,
+        quantity,
         client: {
             fullName: orderDetails.fullName,
             phone: orderDetails.phone,
