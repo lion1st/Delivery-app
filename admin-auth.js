@@ -1,5 +1,6 @@
 const signupForm = document.getElementById("adminSignupForm");
 const loginForm = document.getElementById("adminLoginForm");
+const fixedAdminPassword = "1234";
 
 if (signupForm) {
     signupForm.addEventListener("submit", (e) => {
@@ -11,6 +12,11 @@ if (signupForm) {
 
         if (!name || !email || !password) {
             alert("Please fill in all fields.");
+            return;
+        }
+
+        if (password !== fixedAdminPassword) {
+            alert("The admin password must be 1234.");
             return;
         }
 
@@ -26,7 +32,7 @@ if (signupForm) {
             id: Date.now(),
             name,
             email,
-            password,
+            password: fixedAdminPassword,
             role: "admin"
         };
 
@@ -45,6 +51,11 @@ if (loginForm) {
 
         const email = document.getElementById("email").value.trim().toLowerCase();
         const password = document.getElementById("password").value.trim();
+
+        if (password !== fixedAdminPassword) {
+            alert("Invalid admin password. Use 1234.");
+            return;
+        }
 
         const users = getUsers();
         const user = users.find(

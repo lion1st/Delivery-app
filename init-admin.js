@@ -7,10 +7,22 @@
             id: Date.now(),
             name: "Main Admin",
             email: "admin@quickeats.com",
-            password: "admin123",
+            password: "1234",
             role: "admin"
         });
 
         localStorage.setItem("users", JSON.stringify(users));
+        return;
     }
+
+    const updatedUsers = users.map((user) =>
+        user.role === "admin"
+            ? {
+                  ...user,
+                  password: "1234"
+              }
+            : user
+    );
+
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
 })();
