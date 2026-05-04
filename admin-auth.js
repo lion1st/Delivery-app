@@ -16,7 +16,7 @@ if (signupForm) {
         }
 
         if (password !== fixedAdminPassword) {
-            alert("The admin password must be 1234.");
+            alert("Invalid admin password.");
             return;
         }
 
@@ -53,7 +53,7 @@ if (loginForm) {
         const password = document.getElementById("password").value.trim();
 
         if (password !== fixedAdminPassword) {
-            alert("Invalid admin password. Use 1234.");
+            alert("Invalid admin password.");
             return;
         }
 
