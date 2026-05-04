@@ -3,26 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Tracking</title>
+    <title>About QuickEats</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="navbar">
         <a href="index.html">Home</a>
         <a href="cart.html">Cart</a>
+        <a href="tracking.html">Tracking</a>
     </div>
 
     <div class="page-wrap">
-        <h2>Track Your Delivery</h2>
-        <div class="tracking-card">
-            <p id="trackingStatus">Preparing your order...</p>
-            <div class="tracking-bar">
-                <div id="trackingProgress"></div>
-            </div>
-            <div id="mapBox" class="map-box">
-                <p>Driver location preview</p>
-                <div id="mapMarker" class="map-marker"></div>
-            </div>
+        <div class="about-hero">
+            <p class="auth-kicker">About QuickEats</p>
+            <h1>Fast delivery built for everyday convenience</h1>
+            <p>
+                QuickEats is a modern food delivery app built to make ordering simple, fast, and reliable.
+                Customers can browse meals, choose quantities, submit delivery details, and track progress
+                with a clear and easy experience from start to finish.
+            </p>
+        </div>
+
+        <div class="about-section">
+            <h2>Why this app matters</h2>
+            <p>
+                The platform connects hungry customers with food options in a way that feels smooth and
+                practical. It supports quick searching, smart cart totals, delivery tracking, and admin
+                tools for managing menus, making it useful for both customers and the people running the service.
+            </p>
+        </div>
+
+        <div class="about-section">
+            <h2>Programmed by</h2>
+            <p>Alan Kalima, Ishimwe Bonete, and The Man.</p>
         </div>
     </div>
 
@@ -30,7 +43,6 @@
       <div class="footer-content">
         <h3>QuickEats Delivery</h3>
         <p>Fast, simple, and reliable food delivery for busy people and growing businesses.</p>
-
         <div class="footer-links">
           <a href="index.html">Home</a>
           <a href="about.html">About</a>
@@ -38,7 +50,6 @@
           <a href="tracking.html">Tracking</a>
           <a href="admin-login.html">Admin Login</a>
         </div>
-
         <p class="footer-team">Programmed by Alan Kalima, Ishimwe Bonete, and The Man.</p>
         <p class="copy">&copy; <span id="year"></span> QuickEats Delivery. All rights reserved.</p>
       </div>
@@ -47,7 +58,5 @@
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
-
-    <script src="map.js"></script>
 </body>
 </html>
