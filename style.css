@@ -965,8 +965,10 @@ button {
 .admin-hero-copy p:last-child,
 .admin-form-header p,
 .admin-list-header p {
-    color: #705c50;
+    color: #4f3e34;
     margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
 }
 
 .admin-hero-badge {
@@ -974,65 +976,72 @@ button {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 14px 18px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #222, #3b2f28);
-    color: white;
+    padding: 16px 22px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #fffefc, #fff4eb);
+    color: #2f2018;
     font-weight: 800;
     white-space: nowrap;
-    box-shadow: 0 12px 22px rgba(34, 34, 34, 0.12);
+    box-shadow: 0 16px 30px rgba(126, 74, 33, 0.14);
     overflow: hidden;
-    border: none;
+    border: 1px solid #efd8c7;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .admin-hero-badge:hover {
     transform: translateY(-2px);
-    box-shadow: 0 16px 28px rgba(34, 34, 34, 0.16);
+    box-shadow: 0 18px 34px rgba(126, 74, 33, 0.18);
 }
 
 .admin-hero-badge[data-status="success"] {
-    background: linear-gradient(135deg, #17683d, #24975a);
+    background: linear-gradient(135deg, #effff4, #dff8ea);
+    color: #114f2e;
+    border-color: #b9e3c9;
 }
 
 .admin-hero-badge[data-status="editing"] {
-    background: linear-gradient(135deg, #7a3a14, #c46024);
+    background: linear-gradient(135deg, #fff7e8, #ffe7c6);
+    color: #7b4117;
+    border-color: #f0cca0;
 }
 
 .admin-hero-badge::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.18) 50%, transparent 80%);
+    background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.55) 50%, transparent 80%);
     transform: translateX(-140%);
     animation: adminBadgeSweep 3.2s ease-in-out infinite;
 }
 
 .admin-live-dot {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #4cff84;
     box-shadow: 0 0 0 0 rgba(76, 255, 132, 0.55);
     animation: adminLivePulse 1.8s ease-out infinite;
     position: relative;
     z-index: 1;
+    flex-shrink: 0;
 }
 
 .admin-hero-badge[data-status="success"] .admin-live-dot {
-    background: #d8ffe6;
-    box-shadow: 0 0 0 0 rgba(216, 255, 230, 0.55);
+    background: #24c06b;
+    box-shadow: 0 0 0 0 rgba(36, 192, 107, 0.4);
 }
 
 .admin-hero-badge[data-status="editing"] .admin-live-dot {
-    background: #fff0bf;
-    box-shadow: 0 0 0 0 rgba(255, 240, 191, 0.55);
+    background: #ffab38;
+    box-shadow: 0 0 0 0 rgba(255, 171, 56, 0.35);
 }
 
 .admin-hero-badge span:last-child {
     position: relative;
     z-index: 1;
+    font-size: 0.98rem;
+    letter-spacing: 0.01em;
 }
 
 .admin-shell {
@@ -1078,6 +1087,13 @@ button {
     border: 1px solid #ead8cb;
     background: rgba(255, 255, 255, 0.94);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    color: #2b1d16;
+    font-size: 0.98rem;
+    font-weight: 600;
+}
+
+.admin-form input::placeholder {
+    color: #8b7669;
 }
 
 .admin-form input:focus {
@@ -1114,7 +1130,8 @@ button {
 
 .admin-card p {
     margin: 8px 0;
-    color: #6f584c;
+    color: #4d3e34;
+    font-weight: 600;
 }
 
 .admin-card button {
