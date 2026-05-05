@@ -239,7 +239,7 @@ async function checkout() {
 
     try {
         await sendOrderNotification(cart);
-        alert("Sent");
+        alert("Order sent");
         clearCart();
         window.location.href = "tracking.html";
     } catch (error) {
@@ -250,3 +250,48 @@ async function checkout() {
 
 window.addEventListener("cartUpdated", displayCart);
 document.addEventListener("DOMContentLoaded", displayCart);
+
+const express = require("express");
+const nodemailer = require("nodemailer");
+const app = express();
+
+app.use(express.json());
+
+// Fake database (replace with real DB like Firebase or MongoDB)
+let orders = [];
+
+// Email setup
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "yourgmail@gmail.com",
+    pass: "your_app_password"
+  }
+});
+
+// BUY ROUTE
+app.post("/buy", (req, res) => {
+  const { email, productId } = req.body;
+
+  // 1. Save order to database
+  const order = {
+    id: Date.now(),
+    email,
+    productId,
+    status: "pending"
+  };
+
+  orders.push(order);
+
+  // 2. Send confirmation email
+  transporter.sendMail({
+    from: "yourgmail@gmail.com",
+    to: email,
+    subject: "Order Confirmed",
+    text: `Your order ${order.id} has been received.`
+  });
+
+  res.json({ message: "Order placed successfully!" });
+});
+
+app.listen(3000, () => console.log("Server running"));

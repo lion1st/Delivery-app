@@ -360,7 +360,7 @@ button:hover {
     left: 0;
     width: 18px;
     height: 18px;
-    background: #e63946;
+    background: #e63946 ;
     border-radius: 50%;
     transition: left 0.8s ease;
 }
