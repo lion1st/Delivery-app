@@ -15,13 +15,29 @@ const restaurantInput = document.getElementById("restaurant");
 const categoryInput = document.getElementById("category");
 const updateBtn = document.getElementById("updateBtn");
 const addBtn = document.getElementById("addBtn");
+const adminBadge = document.getElementById("adminLiveBadge");
+const adminBadgeText = document.getElementById("adminLiveBadgeText");
+const adminListHeader = document.querySelector(".admin-list-header");
 
-/* SAVE TO STORAGE */
 function save() {
     localStorage.setItem("foods", JSON.stringify(foods));
+    window.dispatchEvent(new Event("foodsUpdated"));
 }
 
-/* DISPLAY */
+function formatCategory(category) {
+    const value = category.trim().toLowerCase();
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function setAdminBadgeStatus(status, label) {
+    if (!adminBadge || !adminBadgeText) {
+        return;
+    }
+
+    adminBadge.dataset.status = status;
+    adminBadgeText.textContent = label;
+}
+
 function display() {
     const container = document.getElementById("adminList");
     container.innerHTML = "";
@@ -34,11 +50,11 @@ function display() {
     foods.forEach((food) => {
         container.innerHTML += `
             <div class="admin-card">
+                ${food.image ? `<img src="${food.image}" alt="${food.name}" width="120">` : ""}
                 <h3>${food.name}</h3>
                 <p>RWF ${food.price}</p>
                 <p>${food.category}</p>
-                <p>${food.restaurant}</p>
-                ${food.image ? `<img src="${food.image}" alt="${food.name}" width="120">` : ""}
+                <p>${food.restaurant || "QuickEats"}</p>
                 <button onclick="editFood(${food.id})">Edit</button>
                 <button onclick="deleteFood(${food.id})">Delete</button>
             </div>
@@ -46,95 +62,6 @@ function display() {
     });
 }
 
-/* CREATE */
-function addFood() {
-    const newFood = {
-        id: Date.now(),
-        name: nameInput.value.trim(),
-        price: priceInput.value.trim(),
-        image: imageInput.value.trim(),
-        restaurant: restaurantInput.value.trim(),
-        category: categoryInput.value.trim()
-    };
-
-    if (!newFood.name || !newFood.price || !newFood.category) {
-        alert("Please fill in name, price, and category.");
-        return;
-    }
-
-    foods.push(newFood);
-    save();
-    display();
-    clearForm();
-}
-
-/* DELETE */
-function deleteFood(id) {
-    foods = foods.filter((f) => f.id !== id);
-    save();
-    display();
-}
-
-/* EDIT */
-function editFood(id) {
-    const food = foods.find((f) => f.id === id);
-    if (!food) return;
-
-    nameInput.value = food.name || "";
-    priceInput.value = food.price || "";
-    imageInput.value = food.image || "";
-    restaurantInput.value = food.restaurant || "";
-    categoryInput.value = food.category || "";
-
-    editId = id;
-
-    if (addBtn) addBtn.style.display = "none";
-    if (updateBtn) updateBtn.style.display = "block";
-}
-
-/* UPDATE */
-function updateFood() {
-    foods = foods.map((f) => {
-        if (f.id === editId) {
-            return {
-                ...f,
-                name: nameInput.value.trim(),
-                price: priceInput.value.trim(),
-                image: imageInput.value.trim(),
-                restaurant: restaurantInput.value.trim(),
-                category: categoryInput.value.trim()
-            };
-        }
-        return f;
-    });
-
-    save();
-    display();
-    clearForm();
-
-    if (addBtn) addBtn.style.display = "block";
-    if (updateBtn) updateBtn.style.display = "none";
-
-    editId = null;
-}
-
-/* CLEAR FORM */
-function clearForm() {
-    nameInput.value = "";
-    priceInput.value = "";
-    imageInput.value = "";
-    restaurantInput.value = "";
-    categoryInput.value = "";
-}
-
-display();
-window.dispatchEvent(new Event("foodsUpdated"));
-function formatCategory(category) {
-    const value = category.trim().toLowerCase();
-    return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-/* CREATE */
 function addFood() {
     const newFood = {
         id: Date.now(),
@@ -154,22 +81,55 @@ function addFood() {
     save();
     display();
     clearForm();
+    setAdminBadgeStatus("success", `${newFood.name} added. Click to review menu.`);
 }
 
-/* UPDATE */
+function deleteFood(id) {
+    foods = foods.filter((food) => food.id !== id);
+    save();
+    display();
+    setAdminBadgeStatus("live", "Live Menu Control");
+}
+
+function editFood(id) {
+    const food = foods.find((item) => item.id === id);
+
+    if (!food) {
+        return;
+    }
+
+    nameInput.value = food.name || "";
+    priceInput.value = food.price || "";
+    imageInput.value = food.image || "";
+    restaurantInput.value = food.restaurant || "";
+    categoryInput.value = food.category || "";
+    editId = id;
+
+    if (addBtn) addBtn.style.display = "none";
+    if (updateBtn) updateBtn.style.display = "block";
+
+    setAdminBadgeStatus("editing", `Editing ${food.name}. Click to view menu.`);
+    document.querySelector(".admin-form-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function updateFood() {
-    foods = foods.map((f) => {
-        if (f.id === editId) {
+    let updatedFoodName = "Food";
+
+    foods = foods.map((food) => {
+        if (food.id === editId) {
+            updatedFoodName = nameInput.value.trim() || food.name;
+
             return {
-                ...f,
-                name: nameInput.value.trim(),
+                ...food,
+                name: updatedFoodName,
                 price: priceInput.value.trim(),
                 image: imageInput.value.trim(),
                 restaurant: restaurantInput.value.trim(),
                 category: formatCategory(categoryInput.value)
             };
         }
-        return f;
+
+        return food;
     });
 
     save();
@@ -180,4 +140,21 @@ function updateFood() {
     if (updateBtn) updateBtn.style.display = "none";
 
     editId = null;
+    setAdminBadgeStatus("success", `${updatedFoodName} updated. Click to review menu.`);
 }
+
+function clearForm() {
+    nameInput.value = "";
+    priceInput.value = "";
+    imageInput.value = "";
+    restaurantInput.value = "";
+    categoryInput.value = "";
+}
+
+if (adminBadge) {
+    adminBadge.addEventListener("click", () => {
+        adminListHeader?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+}
+
+display();

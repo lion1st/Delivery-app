@@ -982,6 +982,22 @@ button {
     white-space: nowrap;
     box-shadow: 0 12px 22px rgba(34, 34, 34, 0.12);
     overflow: hidden;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.admin-hero-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(34, 34, 34, 0.16);
+}
+
+.admin-hero-badge[data-status="success"] {
+    background: linear-gradient(135deg, #17683d, #24975a);
+}
+
+.admin-hero-badge[data-status="editing"] {
+    background: linear-gradient(135deg, #7a3a14, #c46024);
 }
 
 .admin-hero-badge::after {
@@ -1002,6 +1018,16 @@ button {
     animation: adminLivePulse 1.8s ease-out infinite;
     position: relative;
     z-index: 1;
+}
+
+.admin-hero-badge[data-status="success"] .admin-live-dot {
+    background: #d8ffe6;
+    box-shadow: 0 0 0 0 rgba(216, 255, 230, 0.55);
+}
+
+.admin-hero-badge[data-status="editing"] .admin-live-dot {
+    background: #fff0bf;
+    box-shadow: 0 0 0 0 rgba(255, 240, 191, 0.55);
 }
 
 .admin-hero-badge span:last-child {
