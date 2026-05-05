@@ -1040,8 +1040,9 @@ button {
 .admin-hero-badge span:last-child {
     position: relative;
     z-index: 1;
-    font-size: 0.98rem;
+    font-size: 0.84rem;
     letter-spacing: 0.01em;
+    line-height: 1.35;
 }
 
 .admin-shell {
