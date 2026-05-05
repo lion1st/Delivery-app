@@ -970,13 +970,43 @@ button {
 }
 
 .admin-hero-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     padding: 14px 18px;
     border-radius: 999px;
-    background: #222;
+    background: linear-gradient(135deg, #222, #3b2f28);
     color: white;
     font-weight: 800;
     white-space: nowrap;
     box-shadow: 0 12px 22px rgba(34, 34, 34, 0.12);
+    overflow: hidden;
+}
+
+.admin-hero-badge::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.18) 50%, transparent 80%);
+    transform: translateX(-140%);
+    animation: adminBadgeSweep 3.2s ease-in-out infinite;
+}
+
+.admin-live-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4cff84;
+    box-shadow: 0 0 0 0 rgba(76, 255, 132, 0.55);
+    animation: adminLivePulse 1.8s ease-out infinite;
+    position: relative;
+    z-index: 1;
+}
+
+.admin-hero-badge span:last-child {
+    position: relative;
+    z-index: 1;
 }
 
 .admin-shell {
@@ -1065,6 +1095,35 @@ button {
     margin-top: 10px;
     margin-right: 8px;
     background: linear-gradient(135deg, #231f1d, #40342b);
+}
+
+@keyframes adminLivePulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(76, 255, 132, 0.55);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 12px rgba(76, 255, 132, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(76, 255, 132, 0);
+    }
+}
+
+@keyframes adminBadgeSweep {
+    0%,
+    20% {
+        transform: translateX(-140%);
+    }
+
+    55%,
+    100% {
+        transform: translateX(140%);
+    }
 }
 
 .tracking-bar {
