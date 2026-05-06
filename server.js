@@ -1,37 +1,52 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
+const nodemailer = require("nodemailer");
+require("dotenv").config({ path: path.join(__dirname, "email.env") });
 
 const PORT = process.env.PORT || 3001;
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
-const dataDir = path.join(__dirname, "data");
-const ordersFile = path.join(dataDir, "orders.json");
-const repliesFile = path.join(dataDir, "replies.json");
+const DB_PATH = path.join(__dirname, "delivery.db");
 
-function ensureDataFile(filePath) {
-    if (!fs.existsSync(dataDir)) {
-        fs.mkdirSync(dataDir, { recursive: true });
+// Initialize database
+const db = new sqlite3.Database(DB_PATH);
+
+// Create tables
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS orders (
+        id TEXT PRIMARY KEY,
+        orderReference TEXT UNIQUE,
+        customerName TEXT,
+        customerEmail TEXT,
+        customerPhone TEXT,
+        customerAddress TEXT,
+        items TEXT,
+        total REAL,
+        totalItems INTEGER,
+        createdAt TEXT
+    )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS replies (
+        id TEXT PRIMARY KEY,
+        from_email TEXT,
+        subject TEXT,
+        text TEXT,
+        html TEXT,
+        orderReference TEXT,
+        receivedAt TEXT,
+        matchedOrder TEXT
+    )`);
+});
+
+// Email transporter
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
-
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, "[]", "utf8");
-    }
-}
-
-function readJson(filePath) {
-    ensureDataFile(filePath);
-
-    try {
-        return JSON.parse(fs.readFileSync(filePath, "utf8"));
-    } catch (error) {
-        return [];
-    }
-}
-
-function writeJson(filePath, value) {
-    ensureDataFile(filePath);
-    fs.writeFileSync(filePath, JSON.stringify(value, null, 2), "utf8");
-}
+});
 
 function sendJson(res, statusCode, data) {
     res.writeHead(statusCode, {
@@ -89,12 +104,20 @@ function normaliseReplyPayload(payload) {
 }
 
 function attachReplyToOrder(reply) {
-    if (!reply.orderReference) {
-        return null;
-    }
+    return new Promise((resolve, reject) => {
+        if (!reply.orderReference) {
+            resolve(null);
+            return;
+        }
 
-    const orders = readJson(ordersFile);
-    return orders.find((order) => order.orderReference === reply.orderReference) || null;
+        db.get("SELECT orderReference, customerName, total FROM orders WHERE orderReference = ?", [reply.orderReference], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row || null);
+            }
+        });
+    });
 }
 
 const server = http.createServer(async (req, res) => {
@@ -109,13 +132,24 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && req.url === "/api/orders") {
-        sendJson(res, 200, readJson(ordersFile));
+        db.all("SELECT * FROM orders ORDER BY createdAt DESC", [], (err, rows) => {
+            if (err) {
+                sendJson(res, 500, { error: "Database error" });
+            } else {
+                sendJson(res, 200, rows);
+            }
+        });
         return;
     }
 
     if (req.method === "GET" && req.url === "/api/replies") {
-        const replies = readJson(repliesFile).sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
-        sendJson(res, 200, replies);
+        db.all("SELECT * FROM replies ORDER BY receivedAt DESC", [], (err, rows) => {
+            if (err) {
+                sendJson(res, 500, { error: "Database error" });
+            } else {
+                sendJson(res, 200, rows);
+            }
+        });
         return;
     }
 
@@ -128,7 +162,6 @@ const server = http.createServer(async (req, res) => {
                 return;
             }
 
-            const orders = readJson(ordersFile);
             const record = {
                 id: `order-${Date.now()}`,
                 orderReference: payload.orderReference,
@@ -136,15 +169,22 @@ const server = http.createServer(async (req, res) => {
                 customerEmail: payload.customerEmail || "",
                 customerPhone: payload.customerPhone || "",
                 customerAddress: payload.customerAddress || "",
-                items: payload.items || [],
+                items: JSON.stringify(payload.items || []),
                 total: payload.total || 0,
                 totalItems: payload.totalItems || 0,
                 createdAt: new Date().toISOString()
             };
 
-            orders.push(record);
-            writeJson(ordersFile, orders);
-            sendJson(res, 201, { success: true, order: record });
+            db.run(`INSERT INTO orders (id, orderReference, customerName, customerEmail, customerPhone, customerAddress, items, total, totalItems, createdAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [record.id, record.orderReference, record.customerName, record.customerEmail, record.customerPhone, record.customerAddress, record.items, record.total, record.totalItems, record.createdAt],
+                function(err) {
+                    if (err) {
+                        sendJson(res, 500, { error: "Database error" });
+                    } else {
+                        sendJson(res, 201, { success: true, order: record });
+                    }
+                });
         } catch (error) {
             sendJson(res, 400, { error: "Invalid order payload." });
         }
@@ -161,24 +201,61 @@ const server = http.createServer(async (req, res) => {
         try {
             const payload = await collectBody(req);
             const reply = normaliseReplyPayload(payload);
-            const matchedOrder = attachReplyToOrder(reply);
-            const replies = readJson(repliesFile);
+            const matchedOrder = await attachReplyToOrder(reply);
 
-            replies.push({
-                ...reply,
-                matchedOrder: matchedOrder
-                    ? {
-                          orderReference: matchedOrder.orderReference,
-                          customerName: matchedOrder.customerName,
-                          total: matchedOrder.total
-                      }
-                    : null
-            });
-
-            writeJson(repliesFile, replies);
-            sendJson(res, 201, { success: true });
+            db.run(`INSERT INTO replies (id, from_email, subject, text, html, orderReference, receivedAt, matchedOrder)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [reply.id, reply.from, reply.subject, reply.text, reply.html, reply.orderReference, reply.receivedAt, matchedOrder ? JSON.stringify(matchedOrder) : null],
+                function(err) {
+                    if (err) {
+                        sendJson(res, 500, { error: "Database error" });
+                    } else {
+                        sendJson(res, 201, { success: true });
+                    }
+                });
         } catch (error) {
             sendJson(res, 400, { error: "Invalid reply payload." });
+        }
+
+        return;
+    }
+
+    if (req.method === "POST" && req.url === "/api/send-reply") {
+        try {
+            const payload = await collectBody(req);
+
+            if (!payload.orderReference || !payload.message) {
+                sendJson(res, 400, { error: "orderReference and message are required." });
+                return;
+            }
+
+            db.get("SELECT customerEmail, customerName FROM orders WHERE orderReference = ?", [payload.orderReference], async (err, row) => {
+                if (err) {
+                    sendJson(res, 500, { error: "Database error" });
+                    return;
+                }
+
+                if (!row) {
+                    sendJson(res, 404, { error: "Order not found." });
+                    return;
+                }
+
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: row.customerEmail,
+                    subject: `Reply to your order ${payload.orderReference}`,
+                    text: payload.message
+                };
+
+                try {
+                    await transporter.sendMail(mailOptions);
+                    sendJson(res, 200, { success: true });
+                } catch (emailError) {
+                    sendJson(res, 500, { error: "Failed to send email." });
+                }
+            });
+        } catch (error) {
+            sendJson(res, 400, { error: "Invalid payload." });
         }
 
         return;
@@ -188,7 +265,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-    ensureDataFile(ordersFile);
-    ensureDataFile(repliesFile);
     console.log(`QuickEats backend running on http://localhost:${PORT}`);
 });

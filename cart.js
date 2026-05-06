@@ -1,3 +1,5 @@
+const API_BASE = "http://localhost:3001";
+
 function getCart() {
     return JSON.parse(localStorage.getItem("cart")) || [];
 }
@@ -237,6 +239,43 @@ async function checkout() {
         return;
     }
 
+    const savedOrderDetails = getSavedOrderDetails();
+    const orderReference = `QE-${Date.now()}`;
+    const orderPayload = {
+        orderReference,
+        customerName: savedOrderDetails.fullName || "Unknown customer",
+        customerEmail: savedOrderDetails.email || "",
+        customerPhone: savedOrderDetails.phone || "",
+        customerAddress: savedOrderDetails.address || "",
+        items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            restaurant: item.restaurant,
+            price: item.price,
+            quantity: Number(item.quantity) || 1
+        })),
+        total: cart.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 1)), 0),
+        totalItems: cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0)
+    };
+
+    try {
+        const response = await fetch(`${API_BASE}/api/orders`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderPayload)
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to save the order to the backend.");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Unable to save order to backend. Make sure the backend server is running on http://localhost:3001.");
+        return;
+    }
+
     try {
         await sendOrderNotification(cart);
         alert("Order sent");
@@ -244,54 +283,9 @@ async function checkout() {
         window.location.href = "tracking.html";
     } catch (error) {
         console.error(error);
-        alert("Order was not emailed yet. Add your EmailJS keys in email-config.js and try again.");
+        alert("Order was saved, but email delivery failed. Add your EmailJS keys in email-config.js and try again.");
     }
 }
 
 window.addEventListener("cartUpdated", displayCart);
 document.addEventListener("DOMContentLoaded", displayCart);
-
-const express = require("express");
-const nodemailer = require("nodemailer");
-const app = express();
-
-app.use(express.json());
-
-// Fake database (replace with real DB like Firebase or MongoDB)
-let orders = [];
-
-// Email setup
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "yourgmail@gmail.com",
-    pass: "your_app_password"
-  }
-});
-
-// BUY ROUTE
-app.post("/buy", (req, res) => {
-  const { email, productId } = req.body;
-
-  // 1. Save order to database
-  const order = {
-    id: Date.now(),
-    email,
-    productId,
-    status: "pending"
-  };
-
-  orders.push(order);
-
-  // 2. Send confirmation email
-  transporter.sendMail({
-    from: "yourgmail@gmail.com",
-    to: email,
-    subject: "Order Confirmed",
-    text: `Your order ${order.id} has been received.`
-  });
-
-  res.json({ message: "Order placed successfully!" });
-});
-
-app.listen(3000, () => console.log("Server running"));

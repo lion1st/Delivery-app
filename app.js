@@ -2,6 +2,7 @@ let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let currentPage = 1;
 const itemsPerPage = 6;
 const orderDetailsKey = "orderDetails";
+const API_BASE = "http://localhost:3001";
 
 function getFoods() {
     return JSON.parse(localStorage.getItem("foods")) || [];
