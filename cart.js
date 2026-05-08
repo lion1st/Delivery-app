@@ -84,9 +84,9 @@ function isEmailServiceConfigured() {
         config.publicKey &&
         config.serviceId &&
         config.templateId &&
-        !config.publicKey.includes("YOUR_") &&
-        !config.serviceId.includes("YOUR_") &&
-        !config.templateId.includes("YOUR_")
+        !config.publicKey.includes("4IzVBRxUp3_yXpOiN") &&
+        !config.serviceId.includes("SERVICE_1234567") &&
+        !config.templateId.includes("template_lzzgucs")
     );
 }
 

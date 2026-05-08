@@ -12,7 +12,7 @@ const DB_PATH = path.join(__dirname, "delivery.db");
 // Initialize database
 const db = new sqlite3.Database(DB_PATH);
 
-// Create tables
+// Create tables and enable durable write mode
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS orders (
         id TEXT PRIMARY KEY,
@@ -37,6 +37,33 @@ db.serialize(() => {
         receivedAt TEXT,
         matchedOrder TEXT
     )`);
+
+    db.run("PRAGMA journal_mode = WAL;");
+    db.run("PRAGMA synchronous = FULL;");
+});
+
+function closeDatabase() {
+    db.close((err) => {
+        if (err) {
+            console.error("Error closing database:", err);
+        } else {
+            console.log("Database connection closed.");
+        }
+    });
+}
+
+process.on("SIGINT", () => {
+    closeDatabase();
+    process.exit();
+});
+
+process.on("SIGTERM", () => {
+    closeDatabase();
+    process.exit();
+});
+
+process.on("exit", () => {
+    closeDatabase();
 });
 
 // Email transporter
